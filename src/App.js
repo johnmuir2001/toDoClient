@@ -5,8 +5,23 @@ class App extends Component {
   state = {
     list: [],
     current: "",
-    bgColor: ""
+    bgColor: "",
+    boxAll: false
   };
+
+
+  handleChange = event => {
+    this.setState({ boxAll: event.target.checked }, () => {
+      console.log("This returned true or false", this.state.boxAll);
+    });
+  };
+
+  componentDidMount = async () => {
+    const response = await fetch("http://localhost:3002/data")
+    const data = await response.json()
+    console.log(data)
+    this.setState({list: data.data})
+  }
 
   handleEnter = event => {
     if (event.key === "Enter") {
@@ -23,14 +38,33 @@ class App extends Component {
     if(this.state.current === ""){
       return alert(`enter a value`)
     }
-    task.push(this.state.current);
+    task.push({ todo: this.state.current});
     this.setState({ list: task, current: "" });
+
+    console.log(this.state.list)
+    
+    
+    fetch("http://localhost:3002/register", {
+        method: "POST",
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify({
+        todo: this.state.current
+      })
+    })
   };
 
-  remove = (index) => {
-    let task = this.state.list;
-    task.splice(index, 1)
-    this.setState({list: task})
+  remove = (index, task) => {
+    let tasksToDo = this.state.list;
+    tasksToDo.splice(index, 1)
+    this.setState({list: tasksToDo})
+
+    fetch("http://localhost:3002/delete", {
+        method: "POST",
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify({
+        todo: task.todo
+      })
+    })
   }
 
   boxClick = () => {
@@ -42,32 +76,39 @@ class App extends Component {
 
   render() {
     return (
-      <div className="address">
-        <h1>To-Do List</h1>
-        <div className="form">
-          <input
-            type="text"
-            onKeyPress={this.handleEnter}
-            onChange={this.handleInput}
-            value={this.state.current}
-            placeholder="Give me a task"
-          ></input>
-          <input type="submit" onClick={this.submit} value = "ADD"></input>
+      <div className="background">
+        <div className="wrap">
+          <div className="bottom"></div>
+          <div className="middle"></div>
+          <div className="top"></div>
         </div>
-        <div className="contacts">
-          {this.state.list.map((task, index) => {
-            return (
-              <div className="task">
-                <div className="left">
-                  <input type="checkbox" id="todo"></input>
-                  <label key={index}>{task}</label>
+        <div className="address">
+          <h1>To-Do List</h1>
+          <div className="form">
+            <input
+              type="text"
+              onKeyPress={this.handleEnter}
+              onChange={this.handleInput}
+              value={this.state.current}
+              placeholder="Give me a task"
+            ></input>
+            <input type="submit" onClick={this.submit} value = "ADD"></input>
+          </div>
+          <div className="contacts">
+            {this.state.list.map((task, index) => {
+              return (
+                <div className="task">
+                  <div className="left">
+                    <input type="checkbox" id="todo" onChange={this.handleChange}></input>
+                    <label key={index}>{task.todo}</label>
+                  </div>
+                  <div className="right">
+                    <button className="close" onClick={() => this.remove(index, task)}>X</button>
+                  </div>
                 </div>
-                <div className="right">
-                  <button className="close" onClick={() => this.remove(index)}>X</button>
-                </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
       </div>
     );
