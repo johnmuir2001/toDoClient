@@ -17,7 +17,7 @@ class App extends Component {
   };
 
   componentDidMount = async () => {
-    const response = await fetch("http://localhost:3002/data")
+    const response = await fetch("https://morning-bastion-71577.herokuapp.com/data")
     const data = await response.json()
     console.log(data)
     this.setState({list: data.data})
@@ -44,7 +44,7 @@ class App extends Component {
     console.log(this.state.list)
     
     
-    fetch("http://localhost:3002/register", {
+    fetch("https://morning-bastion-71577.herokuapp.com/register", {
         method: "POST",
         headers: {"content-type": "application/json"},
         body: JSON.stringify({
@@ -58,7 +58,7 @@ class App extends Component {
     tasksToDo.splice(index, 1)
     this.setState({list: tasksToDo})
 
-    fetch("http://localhost:3002/delete", {
+    fetch("https://morning-bastion-71577.herokuapp.com/delete", {
         method: "POST",
         headers: {"content-type": "application/json"},
         body: JSON.stringify({
